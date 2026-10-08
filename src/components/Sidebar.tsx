@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { SidebarContext } from "../layouts/AdminPage";
+import { SidebarContext } from "../layouts/AdminLayout";
 import { Boxes, ChartBar, CreditCard, PanelLeftClose, X } from "lucide-react";
 import logo from "../assets/skansaba.dev.webp";
 
@@ -17,27 +17,33 @@ export default function Sidebar() {
         className={`${!isExpanded && "right-full"} fixed z-900 top-0 md:relative! md:right-0! min-h-full w-80 bg-white text-slate-700 border-r border-slate-200`}
       >
         <div className="sticky h-screen top-0">
-          <div className="w-full h-20 flex items-center justify-between px-6">
+          <div className="w-full h-16 flex items-center justify-between px-6">
             <div className="flex items-center gap-4">
               <img src={logo} className="w-6 h-6" />
               <div className="space-y-1">
-                <div className="leading-none text-blue-400 text-lg font-bold">RPL Jaya</div>
+                <div className="leading-none text-blue-400 text-lg font-bold">
+                  RPL Jaya
+                </div>
               </div>
             </div>
-            {/* <div className="text-blue-500 text-2xl font-black">RPL.J</div> */}
-            <button onClick={() => setIsExpanded((prev) => !prev)}>
-              <PanelLeftClose className="text-slate-600 md:hidden" size={24} />
+            <button
+              className="md:hidden relative z-1 group p-2 flex items-center justify-center"
+              onClick={() => setIsExpanded((prev) => !prev)}
+            >
+              <PanelLeftClose className="text-slate-600" size={18} />
+
+              <div className="absolute -z-1 bg-slate-50 rounded-full w-full h-full scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100 group-active:scale-100 group-active:opacity-100 transition-all"></div>
             </button>
           </div>
           <ul className="space-y-1 font-medium">
             {menus.map((m) => (
               <li key={m.href} className="px-6 relative z-1 group">
-                <div className="absolute justify-self-center -z-1 w-0 h-full opacity-0 bg-slate-50 group-hover:w-full group-hover:opacity-100 duration-300"></div>
+                <div className="absolute justify-self-center -z-1 w-0 h-full opacity-0 bg-slate-50 group-hover:w-full group-hover:opacity-100 group-active:w-full group-active:opacity-100 duration-300"></div>
                 <a
                   href={m.href}
-                  className="py-4 flex items-center gap-2 active:text-blue-500 duration-300"
+                  className="py-3 flex items-center gap-2 text-sm active:text-blue-500 duration-300"
                 >
-                  <m.icon className="group-hover:text-blue-500" size={18} />
+                  <m.icon className="group-hover:text-blue-500" size={14} />
                   <span>{m.label}</span>
                 </a>
               </li>

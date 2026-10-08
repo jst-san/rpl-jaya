@@ -6,7 +6,7 @@ export class Api {
     }
   
     public post(path:string = '/', init?: RequestInit | undefined) {
-      return () => fetch(this.origin+path, {
+      return fetch(this.origin+path, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

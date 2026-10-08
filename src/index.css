@@ -1,4 +1,3 @@
-@import url("https://googleapis.com");
 @import "tailwindcss";
 
 html {
@@ -7,4 +6,8 @@ html {
 
 body {
   margin: 0;
+}
+
+a, button, label {
+  cursor: pointer;
 }
