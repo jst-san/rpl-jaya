@@ -2,7 +2,6 @@ import { Eye, EyeClosed, Home } from "lucide-react";
 import React, { useContext, useState } from "react";
 import { Api } from "../lib/api";
 import { UserContext } from "../layouts/RootLayout";
-import type { User } from "../types/models";
 
 type FormData = {
   email: string;
@@ -71,7 +70,7 @@ export default function LoginPage() {
             placeholder="Masukkan email"
             onBlur={(e) => updateFormData({ email: e.target.value })}
             onKeyDown={(e) => {
-              e.key == "Enter" &&
+              if (e.key === "Enter")
                 updateFormData({ email: e.currentTarget.value });
             }}
           />
@@ -95,7 +94,7 @@ export default function LoginPage() {
               placeholder="Masukkan password"
               onBlur={(e) => updateFormData({ password: e.target.value })}
               onKeyDown={(e) => {
-                e.key == "Enter" &&
+                if (e.key === "Enter")
                   updateFormData({ password: e.currentTarget.value });
               }}
             />

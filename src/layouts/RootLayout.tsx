@@ -21,7 +21,10 @@ export default function RootLayout() {
       if (!access_token) return;
 
       const res = await api.get("/api/user", [], {
-        headers: { Authorization: `Bearer ${access_token}` },
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${access_token.value}`,
+        },
       });
 
       const { data } = await res.json();
