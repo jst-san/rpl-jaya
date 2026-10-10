@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { toRupiah } from "../../lib/numberFormatter";
 import type { Barang, DetailTransaksi, Transaksi } from "../../types/models";
 import { ArrowLeft, ChevronLeft } from "lucide-react";
+import { getAccessToken } from "../../lib/cookies";
 
 interface TransaksiDetails extends Transaksi {
     detail_transaksis: (DetailTransaksi & {barang: Barang})[]
@@ -23,7 +24,14 @@ export default function TransactionDetailsPage() {
   }, []);
 
   const getTransactionDetails = async (id: number) => {
-    const res = await api.get(`/api/transaksi/${id}`);
+    const token = await getAccessToken();
+    
+    const res = await api.get(`/api/transaksi/${id}`, [], {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
     const { data, errors } = await res.json();
 

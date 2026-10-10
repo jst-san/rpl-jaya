@@ -18,6 +18,7 @@ export default function App() {
             element={<Navigate to={"/admin/dashboard"} replace />}
           />
           <Route path="/login" element={<LoginPage />} />
+
           <Route path="/admin/" element={<AdminLayout />}>
             <Route path="/admin/dashboard" element={<DashboardPage />} />
             <Route path="/admin/items" element={<ItemsPage />} />

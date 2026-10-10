@@ -4,7 +4,17 @@ import React, { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import SkelTable from "../../components/SkelTable";
 import type { Barang, Transaksi, TransaksiFillable } from "../../types/models";
-import { Edit, Eye, Minus, Plus, RefreshCw, Trash, View, X } from "lucide-react";
+import {
+  Edit,
+  Eye,
+  Minus,
+  Plus,
+  RefreshCw,
+  Trash,
+  View,
+  X,
+} from "lucide-react";
+import { getAccessToken } from "../../lib/cookies";
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaksi[]>([]);
@@ -48,7 +58,15 @@ export default function TransactionsPage() {
 
   const getTransactions = async () => {
     setIsLoading(true);
-    const res = await api.get("/api/transaksi");
+
+    const token = await getAccessToken();
+
+    const res = await api.get("/api/transaksi", [], {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
     const { data, errors } = await res.json();
 
@@ -61,7 +79,14 @@ export default function TransactionsPage() {
   };
 
   const getItems = async () => {
-    const res = await api.get("/api/barang");
+    const token = await getAccessToken();
+
+    const res = await api.get("/api/barang", [], {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
     const { data, errors } = await res.json();
 
@@ -102,19 +127,31 @@ export default function TransactionsPage() {
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFormError({});
+
+    const token = await getAccessToken();
+
     const res =
       action === "add"
         ? await api.post("/api/transaksi", {
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
             body: JSON.stringify({
               items,
             }),
           })
         : await api.put(`/api/transaksi/${selectedId}`, {
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
             body: JSON.stringify({
               ...formData,
             }),
           });
-
     const { data, errors } = await res.json();
     if (!res.ok) {
       if (errors) setFormError(errors);
@@ -143,7 +180,15 @@ export default function TransactionsPage() {
   };
 
   const handleDelete = async (id: number) => {
-    const res = await api.delete(`/api/transaksi/${id}`);
+    const token = await getAccessToken();
+
+    const res = await api.delete(`/api/transaksi/${id}`, {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
     if (!res.ok) return;
 
@@ -263,7 +308,7 @@ export default function TransactionsPage() {
                     </button>
                     <a
                       className="p-2 flex gap-2 items-center text-xs rounded hover:bg-slate-100 active:bg-slate-100 transition-colors"
-                      href={`/admin/transactions/${t.id}`}                      
+                      href={`/admin/transactions/${t.id}`}
                     >
                       <Eye size={12} />
                       Detail

@@ -2,6 +2,8 @@ import { ArrowRight, Info } from "lucide-react";
 import { Api } from "../../lib/api";
 import { toRupiah } from "../../lib/numberFormatter";
 import { useEffect, useState } from "react";
+import { getAccessToken } from "../../lib/cookies";
+import { Link } from "react-router-dom";
 
 export default function DashboardPage() {
   const api = new Api();
@@ -12,11 +14,16 @@ export default function DashboardPage() {
 
   useEffect(() => {
     (async () => {
-      const res = await api.get("/api/dashboard").then((r) => r.json());
+      const token = await getAccessToken();
 
-      if (res.errors || !res.success) {
-        alert("Terjadi kesalahan");
-      }
+      const res = await api
+        .get("/api/dashboard", [], {
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((r) => r.json());
 
       const { data } = res;
 
@@ -31,12 +38,12 @@ export default function DashboardPage() {
       <div className="relative w-full h-48 px-6 bg-white border border-slate-200 flex flex-col overflow-hidden">
         <div className="flex-1 grid place-content-center relative">
           <p className="text-center text-2xl font-bold">{barangsCount}</p>
-          <a className="absolute bottom-2 w-full flex items-center justify-center gap-2 text-xs text-slate-400">
+          <Link to="/admin/items" className="absolute bottom-2 w-full flex items-center justify-center gap-2 text-xs text-slate-400">
             Lihat Detail <Info className="inline" size={12} />
-          </a>
+          </Link>
         </div>
         <div className="p-6 text-center text-slate-600 py-3 border-t border-blue-500">
-          Jenis Baramg
+          Jenis Barang
         </div>
         <hr className="absolute top-6 left-6 w-8 border-t-blue-500" />
         <hr className="absolute top-8 left-6 w-6 border-t-blue-500" />
@@ -45,9 +52,9 @@ export default function DashboardPage() {
       <div className="relative w-full h-48 px-6 bg-white border border-slate-200 flex flex-col overflow-hidden">
         <div className="flex-1 grid place-content-center relative">
           <p className="text-center text-2xl font-bold">{transaksisCount}</p>
-          <a className="absolute bottom-2 w-full flex items-center justify-center gap-2 text-xs text-slate-400">
+          <Link to="/admin/transactions" className="absolute bottom-2 w-full flex items-center justify-center gap-2 text-xs text-slate-400">
             Lihat Detail <Info className="inline" size={12} />
-          </a>
+          </Link>
         </div>
         <div className="p-6 text-center text-slate-600 py-3 border-t border-blue-500">
           Jumlah Transkasi
@@ -61,9 +68,9 @@ export default function DashboardPage() {
           <p className="text-center text-2xl font-bold">
             {toRupiah(transaksisTotal)}
           </p>
-          <a className="absolute bottom-2 w-full flex items-center justify-center gap-2 text-xs text-slate-400">
+          <Link to="/admin/transactions" className="absolute bottom-2 w-full flex items-center justify-center gap-2 text-xs text-slate-400">
             Lihat Detail <Info className="inline" size={12} />
-          </a>
+          </Link>
         </div>
         <div className="p-6 text-center text-slate-600 py-3 border-t border-blue-500">
           Total Nominal Transaksi

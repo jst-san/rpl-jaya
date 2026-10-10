@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 import SkelTable from "../../components/SkelTable";
 import type { Barang, BarangFillable } from "../../types/models";
 import { Edit, Plus, RefreshCw, Trash, X } from "lucide-react";
+import { getAccessToken } from "../../lib/cookies";
 
 export default function ItemsPage() {
   const [items, setItems] = useState<Barang[]>([]);
@@ -34,9 +35,17 @@ export default function ItemsPage() {
 
   const getItems = async () => {
     setIsLoading(true);
-    const res = await api.get("/api/barang");
 
-    const {data, errors} = await res.json();
+    const token = await getAccessToken();
+
+    const res = await api.get("/api/barang", [], {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const { data, errors } = await res.json();
 
     if (!res.ok) {
       return setError({ code: errors.code, message: errors.message });
@@ -60,20 +69,33 @@ export default function ItemsPage() {
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFormError({});
+
+    const token = await getAccessToken();
+
     const res =
       action === "add"
         ? await api.post("/api/barang", {
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
             body: JSON.stringify({
               ...formData,
             }),
           })
         : await api.put(`/api/barang/${selectedId}`, {
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
             body: JSON.stringify({
               ...formData,
             }),
           });
 
-    const {data, errors} = await res.json();
+    const { data, errors } = await res.json();
     if (!res.ok) {
       if (errors) setFormError(errors);
       return;
@@ -93,7 +115,15 @@ export default function ItemsPage() {
   };
 
   const handleDelete = async (id: number) => {
-    const res = await api.delete(`/api/barang/${id}`);
+    const token = await getAccessToken();
+
+    const res = await api.delete(`/api/barang/${id}`, {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
     if (!res.ok) return;
 
