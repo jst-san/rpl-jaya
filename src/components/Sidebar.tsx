@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { SidebarContext } from "../layouts/AdminLayout";
 import {
   Boxes,
@@ -6,6 +6,7 @@ import {
   CreditCard,
   LogOut,
   PanelLeftClose,
+  Users,
   X,
 } from "lucide-react";
 import logo from "../assets/skansaba.dev.webp";
@@ -20,10 +21,15 @@ export default function Sidebar() {
   const api = new Api();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    setIsExpanded(false);
+  }, [window.location.pathname])
+
   const menus = [
     { icon: ChartBar, label: "Dashboard", href: "/admin/dashboard" },
     { icon: Boxes, label: "Barang", href: "/admin/items" },
     { icon: CreditCard, label: "Transaksi", href: "/admin/transactions" },
+    { icon: Users, label: "User", href: "/admin/users" },
   ];
 
   const handleLogOut = async () => {
@@ -47,6 +53,7 @@ export default function Sidebar() {
       return navigate("/login");
     }
   };
+  
   return (
     <>
       <aside

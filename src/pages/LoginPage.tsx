@@ -19,7 +19,7 @@ export default function LoginPage() {
     email: "",
     password: "",
   });
-  const [formError, setFormError] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = useState(false);
 
   const api = new Api();
@@ -37,7 +37,7 @@ export default function LoginPage() {
     const { data, errors } = await res.json();
 
     if (!res.ok && errors) {
-      return setFormError(errors);
+      return setErrors(errors);
     }
 
     await cookieStore.set("access_token", data.access_token);
@@ -78,7 +78,7 @@ export default function LoginPage() {
             <hr className="absolute bottom-0 w-0 border-blue-500 peer-focus-within:w-full duration-300" />
 
             <span className="absolute top-full left-0 translate-y-1 text-slate-600 text-sm">
-              {formError.email}
+              {errors.email}
             </span>
           </div>
           <div className="relative col-span-2">
@@ -100,7 +100,7 @@ export default function LoginPage() {
               />
               <button
                 type="button"
-                className="absolute right-0 top-1/2 text-slate-600"
+                className="absolute right-0 top-1/2 -translate-y-1/4 text-slate-600"
                 onClick={() => setShowPassword((prev) => !prev)}
               >
                 {showPassword ? <EyeClosed size={16} /> : <Eye size={16} />}
@@ -110,13 +110,13 @@ export default function LoginPage() {
             </div>
 
             <span className="absolute top-full left-0 translate-y-1 text-slate-600 text-sm">
-              {formError.password}
+              {errors.password}
             </span>
           </div>
 
-          {formError.form && (
+          {errors.form && (
             <span className="col-span-2 text-slate-600 text-sm">
-              {formError.form}
+              {errors.form}
             </span>
           )}
           <button

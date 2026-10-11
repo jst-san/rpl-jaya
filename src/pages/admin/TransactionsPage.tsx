@@ -5,8 +5,12 @@ import dayjs from "dayjs";
 import SkelTable from "../../components/SkelTable";
 import type { Barang, Transaksi, TransaksiFillable } from "../../types/models";
 import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Edit,
   Eye,
+  Info,
   Minus,
   Plus,
   RefreshCw,
@@ -15,19 +19,24 @@ import {
   X,
 } from "lucide-react";
 import { getAccessToken } from "../../lib/cookies";
+import { Link } from "react-router-dom";
+import type { PaginationMetadata } from "../../types/data";
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaksi[]>([]);
   const [items, setItems] = useState<
     (Barang & { qty: number; subtotal: number })[]
   >([]);
-  const [selectedItems, setSelectedItems] = useState<
-    (Barang & { qty: number })[]
-  >([]);
-  const [error, setError] = useState<{ code: string; message: string } | null>(
-    null,
-  );
-  const [formError, setFormError] = useState<Record<string, string>>({});
+  const [metadata, setMetadata] = useState<PaginationMetadata>({
+    currentPage: 1,
+    perPage: 10,
+    total: 0,
+    from: 0,
+    to: 0,
+    lastPage: 0,
+  });
+  const [open, setOpen] = useState<Record<string, boolean>>({ perPage: false });
+  const [errors, setErrors] = useState<Record<string, any>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [action, setAction] = useState<"add" | "edit">("add");
   const [formData, setFormData] = useState<TransaksiFillable>({
@@ -56,25 +65,43 @@ export default function TransactionsPage() {
     })();
   }, []);
 
-  const getTransactions = async () => {
+  const getTransactions = async (params: PaginationMetadata = metadata) => {
     setIsLoading(true);
 
     const token = await getAccessToken();
 
-    const res = await api.get("/api/transaksi", [], {
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`,
+    const res = await api.get(
+      `/api/transaksi?page=${params.currentPage}&per_page=${params.perPage}`,
+      [],
+      {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       },
-    });
+    );
 
-    const { data, errors } = await res.json();
+    const payload = await res.json();
 
     if (!res.ok) {
-      return setError({ code: errors.code, message: errors.message });
+      setIsLoading(false);
+      return setErrors({
+        init: {
+          code: res.statusText,
+          message: "Terjadi kesalahan saat memuat data",
+        },
+      });
     }
 
-    setTransactions(data);
+    setTransactions(payload.data);
+    setMetadata({
+      currentPage: payload.current_page,
+      perPage: payload.per_page,
+      from: payload.from,
+      to: payload.to,
+      lastPage: payload.last_page,
+      total: payload.total,
+    });
     setIsLoading(false);
   };
 
@@ -88,10 +115,15 @@ export default function TransactionsPage() {
       },
     });
 
-    const { data, errors } = await res.json();
+    const { data } = await res.json();
 
     if (!res.ok) {
-      return setError({ code: errors.code, message: errors.message });
+      return setErrors({
+        items: {
+          code: res.statusText,
+          message: "Terjadi kesalahan saat memuat data",
+        },
+      });
     }
 
     setItems(
@@ -108,6 +140,22 @@ export default function TransactionsPage() {
     setFormData({ ...formData, ...data });
   };
 
+  const updateMetadata = (data: Partial<PaginationMetadata>) => {
+    setMetadata({ ...metadata, ...data });
+  };
+
+  const previousPage = () => {
+    if (metadata.currentPage <= 1) return;
+
+    getTransactions({ ...metadata, currentPage: metadata.currentPage - 1 });
+  };
+
+  const nextPage = () => {
+    if (metadata.currentPage >= metadata.lastPage) return;
+
+    getTransactions({ ...metadata, currentPage: metadata.currentPage + 1 });
+  };
+
   const closeModal = () => {
     setOpenModal(false);
     if (action === "add") {
@@ -121,12 +169,12 @@ export default function TransactionsPage() {
       });
     }
     setSelectedId(null);
-    setFormError({});
+    setErrors({});
   };
 
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setFormError({});
+    setErrors({});
 
     const token = await getAccessToken();
 
@@ -139,7 +187,9 @@ export default function TransactionsPage() {
               Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
-              items,
+              items: items
+                .filter((i) => i.qty)
+                .map((i) => ({ id: i.id, qty: i.qty })),
             }),
           })
         : await api.put(`/api/transaksi/${selectedId}`, {
@@ -154,7 +204,7 @@ export default function TransactionsPage() {
           });
     const { data, errors } = await res.json();
     if (!res.ok) {
-      if (errors) setFormError(errors);
+      if (errors) setErrors(errors);
       return;
     }
 
@@ -229,13 +279,67 @@ export default function TransactionsPage() {
     setItems(items.map((i) => (i.id === id ? target : i)));
   }
 
-  return error ? (
-    <div></div>
+  const toggle = (state: Record<string, boolean>) => {
+    setOpen({ ...open, ...state });
+  };
+
+  return Boolean(errors.init) ? (
+    <div className="flex justify-center py-16">
+      <div className="flex items-center gap-6">
+        <img
+          src="/src/assets/skansaba.dev.webp"
+          className="w-32 grayscale-100 opacity-25"
+        />
+        <div>
+          <h2 className="text-4xl font-semibold text-slate-700">Oops</h2>
+          <p className="mt-0.5 text-slate-500">{errors.init?.message}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="flex gap-2 items-center mt-4 py-2 px-4 rounded text-sm bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-600 transition-colors"
+          >
+            <RefreshCw size={14} />
+            Refresh
+          </button>
+        </div>
+      </div>
+    </div>
   ) : (
     <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-sm text-blue-500">TRANSAKSI</h2>
         <div className="flex gap-3">
+          <div className="text-xs relative text-slate-600 group/perPage">
+            <button
+              className="leading-none px-2 h-8 flex gap-2 items-center border border-slate-200 rounded hover:bg-slate-50 active:bg-slate-50 transition-colors"
+              onClick={() => toggle({ perPage: !open.perPage })}
+            >
+              {metadata.perPage} Baris <ChevronDown size={14} />
+            </button>
+            {open.perPage && (
+              <div className="z-100 flex flex-col absolute top-full right-0 translate-y-1 py-1 bg-white border border-slate-200 rounded overflow-hidden">
+                {[10, 15, 25, 50, 100].map((n) => (
+                  <button
+                    className="w-24 z-1 relative group"
+                    onClick={() => {
+                      setOpen({ perPage: false });
+                      getTransactions({
+                        ...metadata,
+                        perPage: n,
+                        currentPage: 1,
+                      });
+                    }}
+                  >
+                    <div className="absolute justify-self-center -z-1 w-0 h-full opacity-0 bg-slate-50 group-hover:w-full group-hover:opacity-100 group-active:w-full group-active:opacity-100 duration-300"></div>
+                    <div
+                      className={`${metadata.perPage === n && "text-blue-500"} w-full p-2 text-left transition-colors`}
+                    >
+                      {n} Baris
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           <button
             className="p-2 bg-white text-slate-600 border border-slate-200 rounded hover:bg-slate-50 active:bg-slate-50 transition-colors"
             onClick={async () => await getTransactions()}
@@ -254,6 +358,7 @@ export default function TransactionsPage() {
           </button>
         </div>
       </div>
+      
       <div className="overflow-auto w-full">
         {isLoading && !transactions.length ? (
           <SkelTable />
@@ -306,19 +411,47 @@ export default function TransactionsPage() {
                       <Edit size={12} />
                       Edit
                     </button>
-                    <a
+                    <Link
                       className="p-2 flex gap-2 items-center text-xs rounded hover:bg-slate-100 active:bg-slate-100 transition-colors"
-                      href={`/admin/transactions/${t.id}`}
+                      to={`/admin/transactions/${t.id}`}
                     >
                       <Eye size={12} />
                       Detail
-                    </a>
+                    </Link>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
+      </div>
+
+      <div className="flex justify-between py-6 text-slate-600">
+        <div className="text-sm">
+          Jumlah : {metadata.to + 1 - metadata.from}
+        </div>
+        <div className="flex flex-col items-end gap-3">
+          <div className="text-right text-sm font-[arial]">
+            Halaman{" "}
+            <span className="text-blue-500">{metadata.currentPage}</span> /{" "}
+            {metadata.lastPage}
+          </div>
+          <div className="flex gap-3 items-center">
+            <button
+              className="p-2 bg-white text-slate-600 border border-slate-200 rounded hover:bg-slate-50 active:bg-slate-50 transition-colors"
+              onClick={previousPage}
+            >
+              <ChevronLeft size={14} />
+            </button>
+
+            <button
+              className="p-2 bg-white text-slate-600 border border-slate-200 rounded hover:bg-slate-50 active:bg-slate-50 transition-colors"
+              onClick={nextPage}
+            >
+              <ChevronRight size={14} />
+            </button>
+          </div>
+        </div>
       </div>
 
       {openModal && action === "edit" && (
@@ -358,7 +491,7 @@ export default function TransactionsPage() {
               <hr className="absolute w-full bottom-0 border-slate-300" />
               <hr className="absolute bottom-0 w-0 border-blue-500 peer-focus-within:w-full duration-300" />
               <span className="absolute top-full left-0 translate-y-1 text-slate-600 text-sm">
-                {formError.nomor_transaksi}
+                {errors.nomor_transaksi}
               </span>
             </div>
             <div className="relative col-span-2">
@@ -377,7 +510,7 @@ export default function TransactionsPage() {
               <hr className="absolute bottom-0 w-0 border-blue-500 peer-focus-within:w-full duration-300" />
 
               <span className="absolute top-full left-0 translate-y-1 text-slate-600 text-sm">
-                {formError.tanggal}
+                {errors.tanggal}
               </span>
             </div>
             <div className="relative col-span-2">
@@ -399,7 +532,7 @@ export default function TransactionsPage() {
               <hr className="absolute bottom-0 w-0 border-blue-500 peer-focus-within:w-full duration-300" />
 
               <span className="absolute top-full left-0 translate-y-1 text-slate-600 text-sm">
-                {formError.total}
+                {errors.total}
               </span>
             </div>
             <button
@@ -432,86 +565,104 @@ export default function TransactionsPage() {
             <div className="w-max">
               <h2 className="text-xl font-medium text-blue-500">TAMBAH</h2>
             </div>
-            <div className="overflow-auto">
-              <div className="flex flex-col min-h-full divide-y divide-slate-200">
-                {[...items, ...items, ...items].map((i) => (
-                  <div className="flex flex-col py-3">
-                    <span className="text-xs inline-block text-slate-400">
-                      {i.kode_barang}
-                    </span>
-                    <h3 className="text-slate-800 text-lg">{i.nama_barang}</h3>
-                    <span className="text-blue-500">{toRupiah(i.harga)}</span>
-                    <div className="flex justify-between items-center">
-                      <div className="text-slate-600 text-sm">
-                        Stok: {i.stok}
-                      </div>
-
-                      <div className="grid grid-cols-[max-content_max-content_max-content]">
-                        <button
-                          type="button"
-                          className="p-1 bg-white border border-slate-200 hover:bg-slate-50 active:bg-slate-50 transition-colors"
-                          onClick={() => decrease(i.id)}
-                        >
-                          <Minus size={16} />
-                        </button>
-                        <div className="text-sm h-full aspect-square border-y border-slate-200 bg-white grid place-content-center">
-                          {i.qty}
-                        </div>
-                        <button
-                          type="button"
-                          className="p-1 bg-white border border-slate-200 hover:bg-slate-50 active:bg-slate-50 transition-colors"
-                          onClick={() => increase(i.id)}
-                        >
-                          <Plus size={16} />
-                        </button>
-                      </div>
-                    </div>
-                    <div className="text-sm text-slate-800 mt-2 flex justify-between">
-                      <div>Subtotal: </div>
-                      <div>{toRupiah(i.subtotal)}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              {trxStats.itemsCount && (
-                <div className="sticky bottom-0 left-0 bg-white border-t border-slate-400 pt-3">
-                  <div className="">
-                    <div className="font-semibold">Detail</div>
-                    <div className="max-h-26 overflow-auto">
-                      <ul className="py-1 flex flex-col gap-1">
-                        {items
-                          .filter((i) => i.qty)
-                          .map((i) => (
-                            <li className="text-sm flex justify-between">
-                              <div>
-                                {i.nama_barang}{" "}
-                                <span className="text-xs text-blue-500">
-                                  x{i.qty}
-                                </span>
-                              </div>
-                              <div className="font-sans">
-                                {toRupiah(i.subtotal)}
-                              </div>
-                            </li>
-                          ))}
-                      </ul>
-                    </div>
-                    <hr className="border-slate-400" />
-                    <div className="flex justify-between font-semibold pt-1">
-                      <div className="">Total</div>
-                      <div className="text-right">
-                        {toRupiah(trxStats.total)}
-                      </div>
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="mt-3 justify-self-end w-full py-2.5 px-5 rounded text-white bg-blue-500 hover:bg-blue-600 active:bg-blue-600 transition-colors"
-                  >
-                    Selesai
-                  </button>
+            <div className="overflow-auto scrollbar-thin">
+              {errors.items ? (
+                <div className="p-3 bg-red-50 text-red-400 text-xs mb-2 flex gap-2 items-center">
+                  <Info size={12} />
+                  <div className="flex-1">{errors.items.message}</div>
                 </div>
+              ) : (
+                <>
+                  <div className="flex flex-col min-h-full divide-y divide-slate-200">
+                    {items.map((i) => (
+                      <div className="flex flex-col py-3">
+                        {errors[i.id] && (
+                          <div className="p-3 bg-red-50 text-red-400 text-xs mb-2 flex gap-2 items-center">
+                            <Info size={12} />
+                            <div className="flex-1">{errors[i.id].message}</div>
+                          </div>
+                        )}
+                        <span className="text-xs inline-block text-slate-400">
+                          {i.kode_barang}
+                        </span>
+                        <h3 className="text-slate-800 text-lg">
+                          {i.nama_barang}
+                        </h3>
+                        <span className="text-blue-500">
+                          {toRupiah(i.harga)}
+                        </span>
+                        <div className="flex justify-between items-center">
+                          <div className="text-slate-600 text-sm">
+                            Stok: {i.stok}
+                          </div>
+
+                          <div className="grid grid-cols-[max-content_max-content_max-content]">
+                            <button
+                              type="button"
+                              className="p-1 bg-white border border-slate-200 hover:bg-slate-50 active:bg-slate-50 transition-colors"
+                              onClick={() => decrease(i.id)}
+                            >
+                              <Minus size={16} />
+                            </button>
+                            <div className="text-sm h-full aspect-square border-y border-slate-200 bg-white grid place-content-center">
+                              {i.qty}
+                            </div>
+                            <button
+                              type="button"
+                              className="p-1 bg-white border border-slate-200 hover:bg-slate-50 active:bg-slate-50 transition-colors"
+                              onClick={() => increase(i.id)}
+                            >
+                              <Plus size={16} />
+                            </button>
+                          </div>
+                        </div>
+                        <div className="text-sm text-slate-800 mt-2 flex justify-between">
+                          <div>Subtotal: </div>
+                          <div>{toRupiah(i.subtotal)}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {Boolean(trxStats.itemsCount) && (
+                    <div className="sticky bottom-0 left-0 bg-white pt-3">
+                      <div className="">
+                        <div className="font-semibold">Detail</div>
+                        <div className="max-h-26 overflow-auto">
+                          <ul className="py-1 flex flex-col gap-1">
+                            {items
+                              .filter((i) => i.qty)
+                              .map((i) => (
+                                <li className="text-sm flex justify-between">
+                                  <div>
+                                    {i.nama_barang}{" "}
+                                    <span className="text-xs text-blue-500">
+                                      x{i.qty}
+                                    </span>
+                                  </div>
+                                  <div className="font-sans">
+                                    {toRupiah(i.subtotal)}
+                                  </div>
+                                </li>
+                              ))}
+                          </ul>
+                        </div>
+                        <div className="flex justify-between font-semibold pt-1">
+                          <div className="">Total</div>
+                          <div className="text-right">
+                            {toRupiah(trxStats.total)}
+                          </div>
+                        </div>
+                      </div>
+
+                      <button
+                        type="submit"
+                        className="mt-3 justify-self-end w-full py-2.5 px-5 rounded text-white bg-blue-500 hover:bg-blue-600 active:bg-blue-600 transition-colors"
+                      >
+                        Selesai
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </form>

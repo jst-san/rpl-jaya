@@ -7,6 +7,7 @@ import TransactionsPage from "./pages/admin/TransactionsPage";
 import TransactionDetailsPage from "./pages/admin/TransactionDetailsPage";
 import RootLayout from "./layouts/RootLayout";
 import LoginPage from "./pages/LoginPage";
+import UsersPage from "./pages/admin/UsersPage";
 
 export default function App() {
   return (
@@ -27,6 +28,7 @@ export default function App() {
               path="/admin/transactions/:id"
               element={<TransactionDetailsPage />}
             />
+            <Route path="/admin/users" element={<UsersPage />} />
           </Route>
           <Route
             path="*"

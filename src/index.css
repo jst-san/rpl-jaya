@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+* {
+  @apply scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-white;
+}
+
 html {
   font-family: 'Inter', sans-serif;
 }
