@@ -23,7 +23,7 @@ export default function Sidebar() {
 
   useEffect(() => {
     setIsExpanded(false);
-  }, [window.location.pathname])
+  }, [window.location.pathname]);
 
   const menus = [
     { icon: ChartBar, label: "Dashboard", href: "/admin/dashboard" },
@@ -53,11 +53,11 @@ export default function Sidebar() {
       return navigate("/login");
     }
   };
-  
+
   return (
     <>
       <aside
-        className={`${!isExpanded && "right-full"} fixed z-900 top-0 md:relative! md:right-0! min-h-full w-80 bg-white text-slate-700 border-r border-slate-200`}
+        className={`${!isExpanded && "right-full"} fixed z-900 top-0 md:relative! md:right-0! min-h-full w-64 bg-white text-slate-700 border-r border-slate-200`}
       >
         <div className="sticky h-screen top-0 flex flex-col">
           <div className="w-full h-16 flex items-center justify-between px-6">
@@ -78,19 +78,22 @@ export default function Sidebar() {
               <div className="absolute -z-1 bg-slate-50 rounded-full w-full h-full scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100 group-active:scale-100 group-active:opacity-100 transition-all"></div>
             </button>
           </div>
-          <ul className="space-y-1 font-medium">
-            {menus.map((m) => (
-              <li key={m.href} className="px-6 relative z-1 group">
-                <div className="absolute justify-self-center -z-1 w-0 h-full opacity-0 bg-slate-50 group-hover:w-full group-hover:opacity-100 group-active:w-full group-active:opacity-100 duration-300"></div>
-                <Link
-                  to={m.href}
-                  className="py-3 flex items-center gap-2 text-sm active:text-blue-500 duration-300"
-                >
-                  <m.icon className="group-hover:text-blue-500" size={14} />
-                  <span>{m.label}</span>
+          <ul className="space-y-1 font-medium px-3">
+            {menus.map((m) => {
+              const isActive = window.location.pathname === m.href;
+
+              return (
+                <Link to={m.href} key={m.href} className={`${isActive && "border-slate-100!"} block px-3 relative z-1 rounded-md overflow-hidden group border-b-2 border-r-2 border-transparent duration-300`}>
+                  <div className={`${isActive && "opacity-100 w-full"} absolute justify-self-center -z-1 w-0 h-full opacity-0 bg-slate-50 group-hover:w-full group-hover:opacity-100 group-active:w-full group-active:opacity-100 duration-300`}></div>
+                  <div
+                    className={`${isActive && "text-blue-500"} py-3 flex items-center gap-2 text-xs active:text-blue-500 duration-300`}
+                  >
+                    <m.icon className="group-hover:text-blue-500" size={14} />
+                    <span>{m.label}</span>
+                  </div>
                 </Link>
-              </li>
-            ))}
+              );
+            })}
           </ul>
 
           <div className="mt-auto w-full p-3 pt-0">

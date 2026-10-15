@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 * {
-  @apply scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-white;
+  @apply scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-white outline-none;
 }
 
 html {
