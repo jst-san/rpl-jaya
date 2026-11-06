@@ -33,7 +33,7 @@ export default function LowStocks() {
         <span className="">STOK MENIPIS</span>
         <Link
           className="p-0.5 border rounded-full hover:bg-blue-500 hover:text-white duration-300"
-          to="/admin/items"
+          to="/app/items"
         >
           <ArrowUpRight size={12} />
         </Link>

@@ -22,7 +22,7 @@ import {
 import Sidebar from "../components/Sidebar";
 import { UserContext } from "./RootLayout";
 
-export default function AdminLayout() {
+export default function AppLayout() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [open, setOpen] = useState<Record<string, boolean>>({});
   const [active, setActive] = useState<{
@@ -37,21 +37,21 @@ export default function AdminLayout() {
   const nav =
     user?.role === "superuser"
       ? [
-          { icon: ChartBar, label: "Dashboard", href: "/admin/dashboard" },
-          { icon: Boxes, label: "Barang", href: "/admin/items" },
-          { icon: CreditCard, label: "Transaksi", href: "/admin/transactions" },
-          { icon: Users, label: "User", href: "/admin/users" },
+          { icon: ChartBar, label: "Dashboard", href: "/app/dashboard" },
+          { icon: Boxes, label: "Barang", href: "/app/items" },
+          { icon: CreditCard, label: "Transaksi", href: "/app/transactions" },
+          { icon: Users, label: "User", href: "/app/users" },
         ]
-      : [{ icon: CreditCard, label: "Transaksi", href: "/admin/transactions" }];
+      : [{ icon: CreditCard, label: "Transaksi", href: "/app/transactions" }];
 
   useEffect(() => {
     setActive(nav.find((n) => n.href === location.pathname) ?? undefined);
 
     if (
       user?.role !== "superuser" &&
-      !location.pathname.startsWith("/admin/transactions")
+      !location.pathname.startsWith("/app/transactions")
     ) {
-      navigate("/admin/transactions");
+      navigate("/app/transactions");
     }
   }, [location]);
 

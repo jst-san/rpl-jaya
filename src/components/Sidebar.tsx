@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { SidebarContext } from "../layouts/AdminLayout";
+import { SidebarContext } from "../layouts/AppLayout";
 import {
   Boxes,
   ChartBar,

@@ -75,7 +75,7 @@ export default function TransactionDetailsPage() {
     <div>
       <Link
         className="flex gap-1 items-center text-sm text-slate-600 hover:text-blue-500 active:text-blue-500 transition-colors"
-        to="/admin/transactions"
+        to="/app/transactions"
       >
         <ArrowLeft size={16} />
         Kembali

@@ -422,7 +422,7 @@ export default function TransactionsPage() {
                     )}
                     <Link
                       className="p-2 flex gap-2 items-center text-xs rounded hover:bg-slate-100 active:bg-slate-100 transition-colors"
-                      to={`/admin/transactions/${t.id}`}
+                      to={`/app/transactions/${t.id}`}
                     >
                       <Eye size={12} />
                       Detail

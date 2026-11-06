@@ -1,13 +1,13 @@
 import { Routes, Route, BrowserRouter, Navigate } from "react-router-dom";
 import HomePage from "./pages/Home";
-import DashboardPage from "./pages/admin/DashboardPage";
-import ItemsPage from "./pages/admin/ItemsPage";
-import AdminLayout from "./layouts/AdminLayout";
-import TransactionsPage from "./pages/admin/TransactionsPage";
-import TransactionDetailsPage from "./pages/admin/TransactionDetailsPage";
+import DashboardPage from "./pages/app/DashboardPage";
+import ItemsPage from "./pages/app/ItemsPage";
+import AppLayout from "./layouts/AppLayout";
+import TransactionsPage from "./pages/app/TransactionsPage";
+import TransactionDetailsPage from "./pages/app/TransactionDetailsPage";
 import RootLayout from "./layouts/RootLayout";
 import LoginPage from "./pages/LoginPage";
-import UsersPage from "./pages/admin/UsersPage";
+import UsersPage from "./pages/app/UsersPage";
 
 export default function App() {
   return (
@@ -16,24 +16,24 @@ export default function App() {
         <Route path="/" element={<RootLayout />}>
           <Route
             index
-            element={<Navigate to={"/admin/dashboard"} replace />}
+            element={<Navigate to={"/app/dashboard"} replace />}
           />
           <Route path="/login" element={<LoginPage />} />
 
-          <Route path="/admin/" element={<AdminLayout />}>
-            <Route path="/admin/dashboard" element={<DashboardPage />} />
-            <Route path="/admin/items" element={<ItemsPage />} />
-            <Route path="/admin/transactions" element={<TransactionsPage />} />
+          <Route path="/app/" element={<AppLayout />}>
+            <Route path="/app/dashboard" element={<DashboardPage />} />
+            <Route path="/app/items" element={<ItemsPage />} />
+            <Route path="/app/transactions" element={<TransactionsPage />} />
             <Route
-              path="/admin/transactions/:id"
+              path="/app/transactions/:id"
               element={<TransactionDetailsPage />}
             />
-            <Route path="/admin/users" element={<UsersPage />} />
+            <Route path="/app/users" element={<UsersPage />} />
           </Route>
 
           <Route
             path="*"
-            element={<Navigate to={"/admin/dashboard"} replace />}
+            element={<Navigate to={"/app/dashboard"} replace />}
           />
         </Route>
       </Routes>

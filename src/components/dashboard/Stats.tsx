@@ -16,20 +16,20 @@ export default function Stats() {
       icon: Boxes,
       value: barangsCount,
       label: "JUMLAH BARANG",
-      href: "/admin/items",
+      href: "/app/items",
     },
     {
       icon: CreditCard,
       value: transaksisCount,
       label: "JUMLAH TRANSAKSI",
-      href: "/admin/transactions",
+      href: "/app/transactions",
     },
     {
       icon: DollarSign,
       value: toRupiah(transaksisTotal),
       longValue: true,
       label: "TOTAL PENJUALAN",
-      href: "/admin/transactions",
+      href: "/app/transactions",
     },
   ];
 

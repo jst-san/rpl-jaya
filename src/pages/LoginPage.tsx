@@ -13,7 +13,7 @@ export default function LoginPage() {
   const { user, setUser } = useContext(UserContext);
   const navigate = useNavigate();
 
-  if (user) navigate("/admin/dashboard");
+  if (user) navigate("/app/dashboard");
 
   const [formData, setFormData] = useState<FormData>({
     email: "",
@@ -44,7 +44,7 @@ export default function LoginPage() {
     setUser(data.user);
 
     setFormData({ email: "", password: "" });
-    return navigate("/admin/dashboard");
+    return navigate("/app/dashboard");
   };
 
   return (
@@ -128,7 +128,7 @@ export default function LoginPage() {
         </form>
       </div>
     ) : (
-      <Navigate to="/admin/dashboard" />
+      <Navigate to="/app/dashboard" />
     ))
   );
 }
