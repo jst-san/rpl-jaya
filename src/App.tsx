@@ -30,6 +30,7 @@ export default function App() {
             />
             <Route path="/admin/users" element={<UsersPage />} />
           </Route>
+
           <Route
             path="*"
             element={<Navigate to={"/admin/dashboard"} replace />}

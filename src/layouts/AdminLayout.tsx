@@ -12,7 +12,13 @@ import {
   Users,
   type LucideIcon,
 } from "lucide-react";
-import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
+import {
+  Link,
+  Navigate,
+  Outlet,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import { UserContext } from "./RootLayout";
 
@@ -25,17 +31,28 @@ export default function AdminLayout() {
     href: string;
   }>();
   const location = useLocation();
+  const navigate = useNavigate();
   const { user } = useContext(UserContext);
 
-  const nav = [
-    { icon: ChartBar, label: "Dashboard", href: "/admin/dashboard" },
-    { icon: Boxes, label: "Barang", href: "/admin/items" },
-    { icon: CreditCard, label: "Transaksi", href: "/admin/transactions" },
-    { icon: Users, label: "User", href: "/admin/users" },
-  ];
+  const nav =
+    user?.role === "superuser"
+      ? [
+          { icon: ChartBar, label: "Dashboard", href: "/admin/dashboard" },
+          { icon: Boxes, label: "Barang", href: "/admin/items" },
+          { icon: CreditCard, label: "Transaksi", href: "/admin/transactions" },
+          { icon: Users, label: "User", href: "/admin/users" },
+        ]
+      : [{ icon: CreditCard, label: "Transaksi", href: "/admin/transactions" }];
 
   useEffect(() => {
     setActive(nav.find((n) => n.href === location.pathname) ?? undefined);
+
+    if (
+      user?.role !== "superuser" &&
+      !location.pathname.startsWith("/admin/transactions")
+    ) {
+      navigate("/admin/transactions");
+    }
   }, [location]);
 
   const toggle = (state: Record<string, boolean>) => {
@@ -47,7 +64,7 @@ export default function AdminLayout() {
     (Boolean(user) ? (
       <SidebarContext.Provider value={{ isExpanded, setIsExpanded }}>
         <div className="min-h-screen flex">
-          <Sidebar />
+          <Sidebar nav={nav} />
           <div className="flex-1 w-full">
             <div className="sticky z-[800] top-0 w-full h-16 bg-white border-b border-slate-200 px-6 flex gap-3 items-center">
               <button

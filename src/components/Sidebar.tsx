@@ -8,13 +8,18 @@ import {
   PanelLeftClose,
   Users,
   X,
+  type LucideIcon,
 } from "lucide-react";
 import logo from "../assets/skansaba.dev.webp";
 import { Link, useNavigate } from "react-router-dom";
 import { UserContext } from "../layouts/RootLayout";
 import { Api } from "../lib/api";
 
-export default function Sidebar() {
+export default function Sidebar({
+  nav,
+}: {
+  nav: { icon: LucideIcon; label: string; href: string }[];
+}) {
   const { user, setUser } = useContext(UserContext);
   const { isExpanded, setIsExpanded } = useContext(SidebarContext);
   const [openProfileMenus, setOpenProfileMenus] = useState(false);
@@ -24,13 +29,6 @@ export default function Sidebar() {
   useEffect(() => {
     setIsExpanded(false);
   }, [window.location.pathname]);
-
-  const menus = [
-    { icon: ChartBar, label: "Dashboard", href: "/admin/dashboard" },
-    { icon: Boxes, label: "Barang", href: "/admin/items" },
-    { icon: CreditCard, label: "Transaksi", href: "/admin/transactions" },
-    { icon: Users, label: "User", href: "/admin/users" },
-  ];
 
   const handleLogOut = async () => {
     const access_token = await cookieStore.get("access_token");
@@ -79,17 +77,23 @@ export default function Sidebar() {
             </button>
           </div>
           <ul className="space-y-1 font-medium px-3">
-            {menus.map((m) => {
-              const isActive = window.location.pathname === m.href;
+            {nav.map((n) => {
+              const isActive = window.location.pathname === n.href;
 
               return (
-                <Link to={m.href} key={m.href} className={`${isActive && "border-slate-100!"} block px-3 relative z-1 rounded-md overflow-hidden group border-b-2 border-r-2 border-transparent duration-300`}>
-                  <div className={`${isActive && "opacity-100 w-full"} absolute justify-self-center -z-1 w-0 h-full opacity-0 bg-slate-50 group-hover:w-full group-hover:opacity-100 group-active:w-full group-active:opacity-100 duration-300`}></div>
+                <Link
+                  to={n.href}
+                  key={n.href}
+                  className={`${isActive && "border-slate-100!"} block px-3 relative z-1 rounded-md overflow-hidden group border-b-2 border-r-2 border-transparent duration-300`}
+                >
+                  <div
+                    className={`${isActive && "opacity-100 w-full"} absolute justify-self-center -z-1 w-0 h-full opacity-0 bg-slate-50 group-hover:w-full group-hover:opacity-100 group-active:w-full group-active:opacity-100 duration-300`}
+                  ></div>
                   <div
                     className={`${isActive && "text-blue-500"} py-3 flex items-center gap-2 text-xs active:text-blue-500 duration-300`}
                   >
-                    <m.icon className="group-hover:text-blue-500" size={14} />
-                    <span>{m.label}</span>
+                    <n.icon className="group-hover:text-blue-500" size={14} />
+                    <span>{n.label}</span>
                   </div>
                 </Link>
               );

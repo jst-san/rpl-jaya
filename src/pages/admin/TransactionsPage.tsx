@@ -1,6 +1,6 @@
 import { Api } from "../../lib/api";
 import { toRupiah } from "../../lib/numberFormatter";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import dayjs from "dayjs";
 import SkelTable from "../../components/SkelTable";
 import type { Barang, Transaksi, TransaksiFillable } from "../../types/models";
@@ -21,8 +21,11 @@ import {
 import { getAccessToken } from "../../lib/cookies";
 import { Link } from "react-router-dom";
 import type { PaginationMetadata } from "../../types/data";
+import { UserContext } from "../../layouts/RootLayout";
 
 export default function TransactionsPage() {
+  const { user } = useContext(UserContext);
+  const superuser = user?.role === "superuser";
   const [transactions, setTransactions] = useState<Transaksi[]>([]);
   const [items, setItems] = useState<
     (Barang & { qty: number; subtotal: number })[]
@@ -346,19 +349,21 @@ export default function TransactionsPage() {
           >
             <RefreshCw className={`${isLoading && "animate-spin"}`} size={14} />
           </button>
-          <button
-            className="p-2 bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-600 transition-colors rounded"
-            onClick={() => {
-              setAction("add");
-              setOpenModal(true);
-              getItems();
-            }}
-          >
-            <Plus size={14} />
-          </button>
+          {superuser && (
+            <button
+              className="p-2 bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-600 transition-colors rounded"
+              onClick={() => {
+                setAction("add");
+                setOpenModal(true);
+                getItems();
+              }}
+            >
+              <Plus size={14} />
+            </button>
+          )}
         </div>
       </div>
-      
+
       <div className="overflow-auto w-full">
         {isLoading && !transactions.length ? (
           <SkelTable />
@@ -388,29 +393,33 @@ export default function TransactionsPage() {
                     {dayjs(t.updated_at).format("DD-MM-YYYY")}
                   </td>
                   <td className="absolute bottom-full left-0 flex gap-1 p-1 border border-l-0 border-slate-200 bg-white opacity-0 translate-y-5 pointer-events-none group-focus-within:opacity-100 group-focus-within:translate-y-0 group-focus-within:pointer-events-auto transition-all">
-                    <button
-                      className="p-2 flex gap-2 items-center text-xs rounded hover:bg-slate-100 active:bg-slate-100 transition-colors"
-                      onClick={() => handleDelete(t.id)}
-                    >
-                      <Trash size={12} />
-                      Hapus
-                    </button>
-                    <button
-                      className="p-2 flex gap-2 items-center text-xs rounded hover:bg-slate-100 active:bg-slate-100 transition-colors"
-                      onClick={() => {
-                        setFormData({
-                          nomor_transaksi: t.nomor_transaksi,
-                          tanggal: t.tanggal,
-                          total: t.total,
-                        });
-                        setAction("edit");
-                        setSelectedId(t.id);
-                        setOpenModal(true);
-                      }}
-                    >
-                      <Edit size={12} />
-                      Edit
-                    </button>
+                    {superuser && (
+                      <>
+                        <button
+                          className="p-2 flex gap-2 items-center text-xs rounded hover:bg-slate-100 active:bg-slate-100 transition-colors"
+                          onClick={() => handleDelete(t.id)}
+                        >
+                          <Trash size={12} />
+                          Hapus
+                        </button>
+                        <button
+                          className="p-2 flex gap-2 items-center text-xs rounded hover:bg-slate-100 active:bg-slate-100 transition-colors"
+                          onClick={() => {
+                            setFormData({
+                              nomor_transaksi: t.nomor_transaksi,
+                              tanggal: t.tanggal,
+                              total: t.total,
+                            });
+                            setAction("edit");
+                            setSelectedId(t.id);
+                            setOpenModal(true);
+                          }}
+                        >
+                          <Edit size={12} />
+                          Edit
+                        </button>
+                      </>
+                    )}
                     <Link
                       className="p-2 flex gap-2 items-center text-xs rounded hover:bg-slate-100 active:bg-slate-100 transition-colors"
                       to={`/admin/transactions/${t.id}`}
@@ -454,7 +463,7 @@ export default function TransactionsPage() {
         </div>
       </div>
 
-      {openModal && action === "edit" && (
+      {superuser && openModal && action === "edit" && (
         <>
           <div
             className="fixed inset-0 bg-black/25 z-901"
@@ -545,7 +554,7 @@ export default function TransactionsPage() {
         </>
       )}
 
-      {openModal && action === "add" && (
+      {superuser && openModal && action === "add" && (
         <>
           <div
             className="fixed inset-0 bg-black/25 z-901"

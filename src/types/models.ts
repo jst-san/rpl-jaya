@@ -45,6 +45,7 @@ export interface DetailTransaksi {
 export interface User {
     id:number;
     name:string;
+    role:string;
     email:string;
     email_verified_at:string;
     created_at:string;
@@ -55,4 +56,5 @@ export interface UserFillable {
     name:string;
     email:string;
     password:string;
+    role:string;
 }

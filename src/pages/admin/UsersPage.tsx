@@ -23,6 +23,7 @@ export default function UsersPage() {
   const [action, setAction] = useState<"add" | "edit">("add");
   const [formData, setFormData] = useState<UserFillable>({
     name: "",
+    role: "",
     email: "",
     password: "",
   });
@@ -31,7 +32,7 @@ export default function UsersPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   const api = new Api();
-  const cols = ["ID", "Nama", "Email", "Diverifikasi", "Dibuat", "Diperbarui"];
+  const cols = ["ID", "Nama","Role", "Email", "Diverifikasi", "Dibuat", "Diperbarui"];
 
   useEffect(() => {
     (async () => {
@@ -96,7 +97,7 @@ export default function UsersPage() {
   };
 
   const closeModal = () => {
-    setFormData({ name: "", email: "", password: "" });
+    setFormData({ name: "", email: "", password: "", role: "" });
     setSelectedId(null);
     setOpenModal(false);
     setErrors({});
@@ -146,7 +147,7 @@ export default function UsersPage() {
           ),
         );
 
-    setFormData({ name: "", email: "", password: "" });
+    setFormData({ name: "", email: "", password: "", role: "" });
     setSelectedId(null);
     setOpenModal(false);
   };
@@ -269,11 +270,12 @@ export default function UsersPage() {
                 >
                   <td className="p-2 text-center">{u.id}</td>
                   <td className="p-2">{u.name}</td>
+                  <td className="p-2">{u.role}</td>
                   <td className="p-2">{u.email}</td>
                   <td className="p-2 text-right">
-                    {u.email_verified_at === null
-                      ? "-"
-                      : dayjs(u.email_verified_at).format("DD-MM-YYYY")}
+                    {u.email_verified_at ?
+                      dayjs(u.email_verified_at).format("DD-MM-YYYY")
+                      : "-"}
                   </td>
                   <td className="p-2 text-right">
                     {dayjs(u.created_at).format("DD-MM-YYYY")}
@@ -296,6 +298,7 @@ export default function UsersPage() {
                           name: u.name,
                           email: u.email,
                           password: "",
+                          role: "",
                         });
                         setAction("edit");
                         setSelectedId(u.id);
@@ -379,6 +382,24 @@ export default function UsersPage() {
               <hr className="absolute bottom-0 w-0 border-blue-500 peer-focus-within:w-full duration-300" />
               <span className="absolute top-full left-0 translate-y-1 text-slate-600 text-sm">
                 {errors.name}
+              </span>
+            </div>
+            <div className="relative col-span-2">
+              <label htmlFor="role" className="">
+                Role
+              </label>
+              <input
+                id="role"
+                name="role"
+                className="peer w-full py-3 mt-2 focus-within:outline-none focus-within:bg-slate-100/70 duration-300"
+                placeholder="Masukkan role"
+                defaultValue={formData.role}
+                onBlur={(e) => updateFormData({ role: e.target.value })}
+              />
+              <hr className="absolute w-full bottom-0 border-slate-300" />
+              <hr className="absolute bottom-0 w-0 border-blue-500 peer-focus-within:w-full duration-300" />
+              <span className="absolute top-full left-0 translate-y-1 text-slate-600 text-sm">
+                {errors.role}
               </span>
             </div>
             <div className="relative col-span-2">
