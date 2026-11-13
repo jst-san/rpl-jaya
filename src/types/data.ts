@@ -6,3 +6,7 @@ export interface PaginationMetadata {
     to:number;
     lastPage:number;
 }
+
+export type Params = PaginationMetadata & {
+    search: string
+}

@@ -11,21 +11,25 @@ import {
   Edit,
   Plus,
   RefreshCw,
+  Search,
   Trash,
   X,
 } from "lucide-react";
 import { getAccessToken } from "../../lib/cookies";
-import type { PaginationMetadata } from "../../types/data";
+import type { Params } from "../../types/data";
 
 export default function ItemsPage() {
   const [items, setItems] = useState<Barang[]>([]);
-  const [metadata, setMetadata] = useState<PaginationMetadata>({
+  const [params, setParams] = useState<
+    Params & { search: string }
+  >({
     currentPage: 1,
     perPage: 10,
     total: 0,
     from: 0,
     to: 0,
     lastPage: 0,
+    search: ""
   });
   const [open, setOpen] = useState<Record<string, boolean>>({ perPage: false });
   const [errors, setErrors] = useState<Record<string, any>>({});
@@ -47,15 +51,15 @@ export default function ItemsPage() {
     (async () => {
       await getItems();
     })();
-  }, []);
+  }, [params.search]);
 
-  const getItems = async (params: PaginationMetadata = metadata) => {
+  const getItems = async (p: Params = params) => {
     setIsLoading(true);
 
     const token = await getAccessToken();
 
     const res = await api.get(
-      `/api/barang?page=${params.currentPage}&per_page=${params.perPage}`,
+      `/api/barang?page=${p.currentPage}&per_page=${p.perPage}&search=${p.search}`,
       [],
       {
         headers: {
@@ -80,13 +84,14 @@ export default function ItemsPage() {
     }
 
     setItems(payload.data);
-    setMetadata({
+    setParams({
       currentPage: payload.current_page,
       perPage: payload.per_page,
       from: payload.from,
       to: payload.to,
       lastPage: payload.last_page,
       total: payload.total,
+      search: p.search,
     });
     setIsLoading(false);
   };
@@ -95,20 +100,20 @@ export default function ItemsPage() {
     setFormData({ ...formData, ...data });
   };
 
-  const updateMetadata = (data: Partial<PaginationMetadata>) => {
-    setMetadata({ ...metadata, ...data });
+  const updateParams = (data: Partial<Params>) => {
+    setParams({ ...params, ...data });
   };
 
   const previousPage = () => {
-    if (metadata.currentPage <= 1) return;
+    if (params.currentPage <= 1) return;
 
-    getItems({ ...metadata, currentPage: metadata.currentPage - 1 });
+    getItems({ ...params, currentPage: params.currentPage - 1 });
   };
 
   const nextPage = () => {
-    if (metadata.currentPage >= metadata.lastPage) return;
+    if (params.currentPage >= params.lastPage) return;
 
-    getItems({ ...metadata, currentPage: metadata.currentPage + 1 });
+    getItems({ ...params, currentPage: params.currentPage + 1 });
   };
 
   const closeModal = () => {
@@ -212,12 +217,21 @@ export default function ItemsPage() {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-sm text-blue-500">BARANG</h2>
         <div className="flex gap-3">
+          <div className="relative flex items-center">
+            <Search className="absolute left-2 text-slate-600" size={12} />
+            <input
+              className="w-48 h-8 bg-slate-100 rounded border border-slate-200 text-sm pl-6 pr-3 text-slate-900"
+              defaultValue={params.search}
+              onBlur={(e) => updateParams({search: e.target.value.trim()})}
+              onKeyDown={(e) => e.key === "Enter" && updateParams({search: e.currentTarget.value.trim()})}
+            />
+          </div>
           <div className="text-xs relative text-slate-600 group/perPage">
             <button
               className="leading-none px-2 h-8 flex gap-2 items-center border border-slate-200 rounded hover:bg-slate-50 active:bg-slate-50 transition-colors"
               onClick={() => toggle({ perPage: !open.perPage })}
             >
-              {metadata.perPage} Baris <ChevronDown size={14} />
+              {params.perPage} Baris <ChevronDown size={14} />
             </button>
             {open.perPage && (
               <div className="z-100 flex flex-col absolute top-full right-0 translate-y-1 py-1 bg-white border border-slate-200 rounded overflow-hidden">
@@ -226,12 +240,12 @@ export default function ItemsPage() {
                     className="w-24 z-1 relative group"
                     onClick={() => {
                       setOpen({ perPage: false });
-                      getItems({ ...metadata, perPage: n, currentPage: 1 });
+                      getItems({ ...params, perPage: n, currentPage: 1 });
                     }}
                   >
                     <div className="absolute justify-self-center -z-1 w-0 h-full opacity-0 bg-slate-50 group-hover:w-full group-hover:opacity-100 group-active:w-full group-active:opacity-100 duration-300"></div>
                     <div
-                      className={`${metadata.perPage === n && "text-blue-500"} w-full p-2 text-left transition-colors`}
+                      className={`${params.perPage === n && "text-blue-500"} w-full p-2 text-left transition-colors`}
                     >
                       {n} Baris
                     </div>
@@ -321,34 +335,34 @@ export default function ItemsPage() {
           </table>
         )}
       </div>
-        <div className="flex justify-between py-6 text-slate-600">
-          <div className="text-sm">
-            Jumlah : {metadata.to + 1 - metadata.from}
+      <div className="flex justify-between py-6 text-slate-600">
+        <div className="text-sm">
+          Jumlah : {params.to + 1 - params.from}
+        </div>
+        <div className="flex flex-col items-end gap-3">
+          <div className="text-right text-sm font-[arial]">
+            Halaman{" "}
+            <span className="text-blue-500">{params.currentPage}</span> /{" "}
+            {params.lastPage}
           </div>
-          <div className="flex flex-col items-end gap-3">
-            <div className="text-right text-sm font-[arial]">
-              Halaman{" "}
-              <span className="text-blue-500">{metadata.currentPage}</span> /{" "}
-              {metadata.lastPage}
-            </div>
-            <div className="flex gap-3 items-center">
-              <button
-                className="p-2 bg-white text-slate-600 border border-slate-200 rounded hover:bg-slate-50 active:bg-slate-50 transition-colors"
-                onClick={previousPage}
-              >
-                <ChevronLeft size={14} />
-              </button>
+          <div className="flex gap-3 items-center">
+            <button
+              className="p-2 bg-white text-slate-600 border border-slate-200 rounded hover:bg-slate-50 active:bg-slate-50 transition-colors"
+              onClick={previousPage}
+            >
+              <ChevronLeft size={14} />
+            </button>
 
-              <button
-                className="p-2 bg-white text-slate-600 border border-slate-200 rounded hover:bg-slate-50 active:bg-slate-50 transition-colors"
-                onClick={nextPage}
-              >
-                <ChevronRight size={14} />
-              </button>
-            </div>
+            <button
+              className="p-2 bg-white text-slate-600 border border-slate-200 rounded hover:bg-slate-50 active:bg-slate-50 transition-colors"
+              onClick={nextPage}
+            >
+              <ChevronRight size={14} />
+            </button>
           </div>
         </div>
-      
+      </div>
+
       {openModal && (
         <>
           <div
