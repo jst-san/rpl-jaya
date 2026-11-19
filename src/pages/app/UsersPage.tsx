@@ -2,7 +2,19 @@ import { useEffect, useState } from "react";
 import { Api } from "../../lib/api";
 import { getAccessToken } from "../../lib/cookies";
 import type { User, UserFillable } from "../../types/models";
-import { ChevronDown, ChevronLeft, ChevronRight, Edit, Eye, EyeClosed, Plus, RefreshCw, Search, Trash, X } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Edit,
+  Eye,
+  EyeClosed,
+  Plus,
+  RefreshCw,
+  Search,
+  Trash,
+  X,
+} from "lucide-react";
 import SkelTable from "../../components/SkelTable";
 import dayjs from "dayjs";
 import type { Params } from "../../types/data";
@@ -16,7 +28,7 @@ export default function UsersPage() {
     from: 0,
     to: 0,
     lastPage: 0,
-    search: ""
+    search: "",
   });
   const [open, setOpen] = useState<Record<string, boolean>>({ perPage: false });
   const [errors, setErrors] = useState<Record<string, any>>({});
@@ -33,7 +45,15 @@ export default function UsersPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   const api = new Api();
-  const cols = ["ID", "Nama","Role", "Email", "Diverifikasi", "Dibuat", "Diperbarui"];
+  const cols = [
+    "ID",
+    "Nama",
+    "Role",
+    "Email",
+    "Diverifikasi",
+    "Dibuat",
+    "Diperbarui",
+  ];
 
   useEffect(() => {
     (async () => {
@@ -46,12 +66,16 @@ export default function UsersPage() {
 
     const token = await getAccessToken();
 
-    const res = await api.get(`/api/users?page=${p.currentPage}&per_page=${p.perPage}&search=${p.search}`, [], {
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`,
+    const res = await api.get(
+      `/api/users?page=${p.currentPage}&per_page=${p.perPage}&search=${p.search}`,
+      [],
+      {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       },
-    });
+    );
 
     const payload = await res.json();
 
@@ -73,7 +97,7 @@ export default function UsersPage() {
       to: payload.to,
       lastPage: payload.last_page,
       total: payload.total,
-      search: p.search
+      search: p.search,
     });
     setIsLoading(false);
   };
@@ -283,7 +307,19 @@ export default function UsersPage() {
                   className="relative text-slate-800 bg-slate-50 odd:bg-slate-100 divide-x divide-slate-200 outline outline-transparent -outline-offset-1 focus-within:bg-white transition-colors group"
                 >
                   <td className="p-2 text-center">{u.id}</td>
-                  <td className="p-2">{u.name}</td>
+                  <td className="p-2 flex gap-2 items-center">
+                    {u.picture ? (
+                      <img
+                        className="w-5 aspect-square object-cover object-center rounded-full"
+                        src={u.picture}
+                      />
+                    ) : (
+                      <div className="w-5 h-5 bg-blue-500 rounded-full grid place-content-center uppercase text-white text-[0.6rem]">
+                        {u.name.slice(0, 2)}
+                      </div>
+                    )}
+                    {u.name}
+                  </td>
                   <td className="p-2">{u.role}</td>
                   <td className="p-2">{u.email}</td>
                   <td className="p-2 text-right">

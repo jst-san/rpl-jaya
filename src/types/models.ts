@@ -1,60 +1,60 @@
 export interface Barang {
-    id:number;
-    nama_barang:string;
-    kode_barang:string;
-    harga:number;
-    stok:number;
-    created_at:string;
-    updated_at:string;
+  id: number;
+  nama_barang: string;
+  kode_barang: string;
+  harga: number;
+  stok: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface BarangFillable {
-    nama_barang:string;
-    kode_barang:string;
-    harga:number;
-    stok:number;
+  nama_barang: string;
+  kode_barang: string;
+  harga: number;
+  stok: number;
 }
 
-
 export interface Transaksi {
-    id:number;
-    nomor_transaksi:string;
-    tanggal:string;
-    total:number;
-    created_at:string;
-    updated_at:string;
+  id: number;
+  nomor_transaksi: string;
+  tanggal: string;
+  total: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface TransaksiFillable {
-    nomor_transaksi:string;
-    tanggal:string;
-    total:number;
+  nomor_transaksi: string;
+  tanggal: string;
+  total: number;
 }
 
 export interface DetailTransaksi {
-    id:number;
-    transaksi_id:number;
-    barang_id:number;
-    harga:number;
-    jumlah:number;
-    subtotal:number;
-    created_at:number;
-    updated_at:number;
+  id: number;
+  transaksi_id: number;
+  barang_id: number;
+  harga: number;
+  jumlah: number;
+  subtotal: number;
+  created_at: number;
+  updated_at: number;
 }
 
 export interface User {
-    id:number;
-    name:string;
-    role:string;
-    email:string;
-    email_verified_at:string;
-    created_at:string;
-    updated_at:string;
+  id: number;
+  name: string;
+  role: string;
+  email: string;
+  email_verified_at: string;
+  picture: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface UserFillable {
-    name:string;
-    email:string;
-    password:string;
-    role:string;
+  name: string;
+  email: string;
+  password: string;
+  role: string;
 }
