@@ -31,7 +31,7 @@ export default function Sidebar({
 }) {
   const { user, setUser } = useContext(UserContext);
   const { isExpanded, setIsExpanded } = useContext(SidebarContext);
-  const [openProfileMenus, setOpenProfileMenus] = useState(true);
+  const [openProfileMenus, setOpenProfileMenus] = useState(false);
   const [open, setOpen] = useState<Record<string, boolean>>({});
   const api = new Api();
   const navigate = useNavigate();

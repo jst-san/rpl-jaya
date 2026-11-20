@@ -45,6 +45,8 @@ export default function AppLayout() {
       : [{ icon: CreditCard, label: "Transaksi", href: "/app/transactions" }];
 
   useEffect(() => {
+    if (!user) return;
+
     setActive(nav.find((n) => n.href === location.pathname) ?? undefined);
 
     if (
@@ -53,7 +55,7 @@ export default function AppLayout() {
     ) {
       navigate("/app/transactions");
     }
-  }, [location]);
+  }, [user, location]);
 
   const toggle = (state: Record<string, boolean>) => {
     setOpen({ ...open, ...state });
